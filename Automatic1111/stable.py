@@ -8,7 +8,7 @@ import time
 
 
 sUrl = "http://127.0.0.1:7860"
-tApi = "6452554928:AAG3MGE3EYNjFgeticWVGQEHUbqf1cap7dU"
+tApi = "Enter your Telgram bot API"
 tUrl = "https://api.telegram.org/bot" + tApi
 
 keyboardDefault = [['']]
