@@ -5,10 +5,12 @@ from PIL import Image
 import threading
 import json
 import time
+from googletrans import Translator
 
+translator = Translator()
 
 sUrl = "http://127.0.0.1:7860"
-tApi = "Enter your Telgram bot API"
+tApi = "6452554928:AAG3MGE3EYNjFgeticWVGQEHUbqf1cap7dU"
 tUrl = "https://api.telegram.org/bot" + tApi
 
 keyboardDefault = [['']]
@@ -55,11 +57,17 @@ def process_message(message, offset):
             mode = Read_input_message(chat_id, offset)
             if mode.lower() == 'easy mode':
                 print("easy selected")
+
                 sendMessage("Enter your prompt", chat_id)
                 prompt = Read_input_message(chat_id, offset)
+                translated = translator.translate(prompt, dest='en')
+                prompt = translated.text
+                print(prompt)
+
                 sendMessage("Generating Image...", chat_id)
                 image = gneratePhoto(prompt)
                 sendMessage("Image Generated!", chat_id)
+
                 sendMessage("Uploading Image to Telegram...", chat_id)
                 sendPhoto(image, chat_id)
 
@@ -69,7 +77,7 @@ def process_message(message, offset):
                 model = Read_input_message(chat_id, offset)
                 model = setModel(model)
                 print(model)
-                
+
                 refiner = "sd_xl_refiner_1.0_0.9vae.safetensors"
 
                 sendMessage("Select sampler", chat_id, keyboardSamplers)
@@ -86,12 +94,14 @@ def process_message(message, offset):
 
                 sendMessage("Enter your prompt", chat_id)
                 prompt = Read_input_message(chat_id, offset)
-                
+                prompt = translator.translate(prompt, dest='en')
+                print(prompt)
+
                 sendMessage("Generating Image...", chat_id)
                 image = gneratePhoto(prompt, steps, cfg,
                                      model, refiner, sampler)
                 sendMessage("Image Generated!", chat_id)
-                
+
                 sendMessage("Uploading Image to Telegram...", chat_id)
                 sendPhoto(image, chat_id)
             else:
@@ -207,7 +217,6 @@ def gneratePhoto(prompt,
     response = requests.post(url=f'{sUrl}/sdapi/v1/txt2img', json=parameters)
 
     result = response.json()
-    print(result)
 
     imagePath = "C:\\Users\\Arian\\Desktop\\telsends\\photo.JPEG"
     image = Image.open(io.BytesIO(base64.b64decode(result['images'][0])))
