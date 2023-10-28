@@ -79,9 +79,10 @@ def process_message(message, offset):
                 file_number = 1
                     
             image = gneratePhoto(prompt, chat_id, file_number)
-            time.sleep(13)
-            sendMessage("Image Generated!", chat_id)
-
+            while True:
+                if os.path.exists(image):    
+                    sendMessage("Image Generated!", chat_id)
+                    break
             sendMessage("Uploading Image to Telegram...", chat_id)
             sendPhoto(image, chat_id)
             sendMessage(f"Your {prompt} is Successfully Made!", chat_id, keyboardStart)
