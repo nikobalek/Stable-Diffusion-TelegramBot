@@ -56,7 +56,7 @@ def process_message(message, offset):
             sendMessage("Enter your prompt", chat_id)
             prompt = Read_input_message(chat_id, offset)
             
-            if prompt.lower() == "generate" or prompt.lower() =="/generate" or prompt.lower() =="gen":
+            if prompt.lower() == "generate" or prompt.lower() =="/generate" or prompt.lower() =="gen" or prompt.lower() == "\start" or prompt.lower() == "/start" or prompt.lower() == "start" or prompt.lower() == "\help" or prompt.lower() == "/help":
                 return 0
                 
             translated = translator.translate(prompt, dest='en')
