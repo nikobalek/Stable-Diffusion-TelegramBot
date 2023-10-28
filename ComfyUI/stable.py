@@ -52,8 +52,13 @@ def process_message(message, offset):
                 f"What the FUCK is {text}?!\nGIVE ME PROMPT BITCH!", chat_id, keyboardStart)
 
         elif text.lower() == "generate" or text.lower() =="/generate" or text.lower() =="gen":
+            
             sendMessage("Enter your prompt", chat_id)
             prompt = Read_input_message(chat_id, offset)
+            
+            if prompt.lower() == "generate" or prompt.lower() =="/generate" or prompt.lower() =="gen":
+                return 0
+                
             translated = translator.translate(prompt, dest='en')
             prompt = translated.text
             print(prompt)
