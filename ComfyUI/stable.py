@@ -11,7 +11,7 @@ from PIL import Image
 translator = Translator()
 filename= ""
 comfyUrl = "http://127.0.0.1:8188/prompt"
-tApi = "6452554928:AAG3MGE3EYNjFgeticWVGQEHUbqf1cap7dU"
+tApi = "6927275754:AAFFcZ3HEOweLoURZocIg0RI9MornR5_4F8"
 tUrl = "https://api.telegram.org/bot" + tApi
 
 outputPath = "C:\\Program Files (x86)\\ComfyUI_windows_portable\\ComfyUI\\output"
@@ -32,7 +32,7 @@ def main():
                     threading.Thread(target=process_message,
                                      args=(message, offset)).start()
                 offset = messages["result"][-1]["update_id"] + 1
-                time.sleep(0.5)
+                time.sleep(0.2)
         else:
             continue
 
@@ -51,40 +51,35 @@ def process_message(message, offset):
             sendMessage(
                 f"What the FUCK is {text}?!\nGIVE ME PROMPT BITCH!", chat_id, keyboardStart)
 
-        elif text.lower() == "generate":
-            sendMessage("Choose Mode", chat_id, keyboardModes)
+        elif text.lower() == "generate" or text.lower() =="/generate" or text.lower() =="gen":
+            sendMessage("Enter your prompt", chat_id)
+            prompt = Read_input_message(chat_id, offset)
+            translated = translator.translate(prompt, dest='en')
+            prompt = translated.text
+            print(prompt)
 
-            mode = Read_input_message(chat_id, offset)
-            if mode.lower() == 'easy mode':
-                print("easy selected")
-
-                sendMessage("Enter your prompt", chat_id)
-                prompt = Read_input_message(chat_id, offset)
-                translated = translator.translate(prompt, dest='en')
-                prompt = translated.text
-                print(prompt)
-
-                sendMessage("Generating Image...", chat_id)
-                if os.path.isdir(f"{outputPath}\\{chat_id}"):
-                    print("dir exists")
-                    if os.path.isfile(f'{outputPath}\\{chat_id}\\{chat_id}.txt'):
-                        print("file exists")
-                        with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt','r') as f:
-                            file_number = f.read()
-                            print(file_number)
-                    else:
-                        print("file doesnt exist")
-                        file_number = 1
+            sendMessage("Generating Image...", chat_id)
+            if os.path.isdir(f"{outputPath}\\{chat_id}"):
+                print("dir exists")
+                if os.path.isfile(f'{outputPath}\\{chat_id}\\{chat_id}.txt'):
+                    print("file exists")
+                    with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt','r') as f:
+                        file_number = f.read()
+                        print(file_number)
                 else:
-                    print("dir doesnt exist")
+                    print("file doesnt exist")
                     file_number = 1
+            else:
+                print("dir doesnt exist")
+                file_number = 1
                     
-                image = gneratePhoto(prompt, chat_id, file_number)
-                time.sleep(15)
-                sendMessage("Image Generated!", chat_id)
+            image = gneratePhoto(prompt, chat_id, file_number)
+            time.sleep(15)
+            sendMessage("Image Generated!", chat_id)
 
-                sendMessage("Uploading Image to Telegram...", chat_id)
-                sendPhoto(image, chat_id)
+            sendMessage("Uploading Image to Telegram...", chat_id)
+            sendPhoto(image, chat_id)
+            sendMessage(f"Your {prompt} is Successfully Made!", chat_id, keyboardStart)
     except:
         sendMessage("Try again please", chat_id, keyboardStart)
         print("An error occurred")
