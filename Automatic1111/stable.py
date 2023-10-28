@@ -32,6 +32,7 @@ def main():
                     threading.Thread(target=process_message,
                                      args=(message, offset)).start()
                 offset = messages["result"][-1]["update_id"] + 1
+                time.sleep(0.5)
         else:
             continue
 
