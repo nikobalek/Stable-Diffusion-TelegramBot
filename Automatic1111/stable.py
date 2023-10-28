@@ -31,7 +31,6 @@ def main():
                 for message in messages["result"]:
                     threading.Thread(target=process_message,
                                      args=(message, offset)).start()
-                time.sleep(0.5)
                 offset = messages["result"][-1]["update_id"] + 1
         else:
             continue
