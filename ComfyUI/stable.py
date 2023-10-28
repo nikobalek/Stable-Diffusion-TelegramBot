@@ -46,7 +46,7 @@ def process_message(message, offset):
         print(username+": "+text)
 
         if text == "\start" or text == "/start" or text == "start":
-            sendMessage("Welcum!💦\nTo Text to Image!📸\nHow to use?🤔\nJust simply send your prompt and I will genarate your image!\nFor more info how to make a better photo tap \\help\nWhen ever stuck somewhere just type start to restart!\n\nMade by @nikobalek", chat_id, keyboardStart)
+            sendMessage("welcome!\nTo Text to Image!📸\nHow to use?🤔\nJust simply send your prompt and I will genarate your image!\nFor more info how to make a better photo tap \\help\nWhen ever stuck somewhere just type start to restart!\n\nMade by @nikobalek", chat_id, keyboardStart)
         elif text.lower() == "hi" or text.lower() == "hello" or text.lower() == "bye":
             sendMessage(
                 f"What the FUCK is {text}?!\nGIVE ME PROMPT BITCH!", chat_id, keyboardStart)
@@ -79,7 +79,7 @@ def process_message(message, offset):
                 file_number = 1
                     
             image = gneratePhoto(prompt, chat_id, file_number)
-            time.sleep(15)
+            time.sleep(13)
             sendMessage("Image Generated!", chat_id)
 
             sendMessage("Uploading Image to Telegram...", chat_id)
