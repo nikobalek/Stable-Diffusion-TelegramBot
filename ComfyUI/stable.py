@@ -9,7 +9,7 @@ from googletrans import Translator
 from PIL import Image
 
 translator = Translator()
-filename= ""
+filename = ""
 comfyUrl = "http://127.0.0.1:8188/prompt"
 tApi = "6927275754:AAFFcZ3HEOweLoURZocIg0RI9MornR5_4F8"
 tUrl = "https://api.telegram.org/bot" + tApi
@@ -17,7 +17,8 @@ tUrl = "https://api.telegram.org/bot" + tApi
 outputPath = "C:\\Program Files (x86)\\ComfyUI_windows_portable\\ComfyUI\\output"
 
 keyboardDefault = [['']]
-keyboardStart = [['Generate']]
+keyboardStart = [['Imagine!']]
+keyboardCancel = [['Cancel']]
 keyboardModes = [['Easy Mode', 'Advanced Mode'], ['Costume']]
 
 
@@ -46,29 +47,68 @@ def process_message(message, offset):
         print(username+": "+text)
 
         if text == "\start" or text == "/start" or text == "start":
-            sendMessage("welcome!\nTo Text to Image!📸\nHow to use?🤔\nJust simply send your prompt and I will genarate your image!\nFor more info how to make a better photo tap \\help\nWhen ever stuck somewhere just type start to restart!\n\nMade by @nikobalek", chat_id, keyboardStart)
+            sendMessage("welcome!\nTo Text to Image!📸\nHow to use?🤔\nJust simply send your text and I will imagine your text!\nFor more info how to make a better photo tap /help\nWhen ever stuck somewhere just type start to restart!\n\nMade by @nikobalek", chat_id, keyboardStart)
         elif text.lower() == "hi" or text.lower() == "hello" or text.lower() == "bye":
             sendMessage(
                 f"What the FUCK is {text}?!\nGIVE ME PROMPT BITCH!", chat_id, keyboardStart)
 
-        elif text.lower() == "generate" or text.lower() =="/generate" or text.lower() =="gen":
-            
-            sendMessage("Enter your prompt", chat_id)
-            prompt = Read_input_message(chat_id, offset)
-            
-            if prompt.lower() == "generate" or prompt.lower() =="/generate" or prompt.lower() =="gen" or prompt.lower() == "\start" or prompt.lower() == "/start" or prompt.lower() == "start" or prompt.lower() == "\help" or prompt.lower() == "/help":
+        elif text.lower() == "imagine!" or text.lower() == "/generate" or text.lower() == "gen":
+
+            status = isGenerating(chat_id)
+
+            if status == '1':
+                sendMessage(
+                    "You can only Imagine 1 Text at a time!⚠️", chat_id)
                 return 0
-                
+
+            sendMessage("Enter your Text for me to Imagine!",
+                        chat_id, keyboardCancel)
+
+            if os.path.exists(f"{outputPath}\\{chat_id}"):
+                with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'w') as f:
+                    f.write("1")
+            else:
+                os.mkdir(f"{outputPath}\\{chat_id}")
+                with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'w') as f:
+                    f.write("1")
+
+            prompt = Read_input_message(chat_id, offset)
+
+            with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'w') as f:
+                f.write("0")
+
+            if os.path.exists(f"{outputPath}\\{chat_id}"):
+                with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'w') as f:
+                    f.write("1")
+            else:
+                os.mkdir(f"{outputPath}\\{chat_id}")
+                with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'w') as f:
+                    f.write("1")
+
+            if prompt.lower() == "imagine!" or prompt.lower() == "/generate" or prompt.lower() == "gen" or prompt.lower() == "\start" or prompt.lower() == "/start" or prompt.lower() == "start" or prompt.lower() == "\help" or prompt.lower() == "/help":
+                with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'w') as f:
+                    f.write("0")
+                with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'w') as f:
+                    f.write("0")
+                return 0
+            elif prompt.lower() == "cancel":
+                with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'w') as f:
+                    f.write("0")
+                with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'w') as f:
+                    f.write("0")
+                sendMessage("Canceled!", chat_id, keyboardStart)
+                return 0
+
             translated = translator.translate(prompt, dest='en')
             prompt = translated.text
             print(prompt)
 
-            sendMessage("Generating Image...", chat_id)
+            sendMessage("Generating Image...", chat_id, keyboardDefault)
             if os.path.isdir(f"{outputPath}\\{chat_id}"):
                 print("dir exists")
                 if os.path.isfile(f'{outputPath}\\{chat_id}\\{chat_id}.txt'):
                     print("file exists")
-                    with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt','r') as f:
+                    with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt', 'r') as f:
                         file_number = f.read()
                         print(file_number)
                 else:
@@ -77,15 +117,31 @@ def process_message(message, offset):
             else:
                 print("dir doesnt exist")
                 file_number = 1
-                    
+
             image = gneratePhoto(prompt, chat_id, file_number)
             while True:
-                if os.path.exists(image):    
+                if os.path.exists(image):
                     sendMessage("Image Generated!", chat_id)
                     break
+            with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'w') as f:
+                f.write("0")
             sendMessage("Uploading Image to Telegram...", chat_id)
             sendPhoto(image, chat_id)
-            sendMessage(f"Your {prompt} is Successfully Made!", chat_id, keyboardStart)
+            sendMessage(f"Your {prompt} is Successfully Made!",
+                        chat_id, keyboardStart)
+            return 0
+
+        else:
+            statusGen = isGenerating(chat_id)
+            statusProm = isPrompting(chat_id)
+
+            if statusGen == '0' and statusProm == '1':
+                return 0
+            elif statusGen == '0' and statusProm == '0':
+                sendMessage(
+                    'To Imagine a Photo First Tap "Imagine!" Button👇', chat_id, keyboardStart)
+                return 0
+
     except:
         sendMessage("Try again please", chat_id, keyboardStart)
         print("An error occurred")
@@ -142,7 +198,7 @@ def sendPhoto(image_path, chat_id):
     image.save(f'{outputPath}\\{filename}.jpg', 'JPEG', quality=80)
     print("image saved")
     imagePath = f'{outputPath}\\{filename}.jpg'
-    
+
     with open(imagePath, 'rb') as photo:
         response = requests.post(
             tUrl + "/sendPhoto", data={"chat_id": chat_id}, files={"photo": photo})
@@ -278,22 +334,41 @@ def gneratePhoto(userprompt, chat_id, file_number):
     filename = "{}.{:02d}.png".format(chat_id, int(file_number))
     print("image path de")
     imagePath = f"{outputPath}\\{chat_id}\\{filename}"
-    
+
     print("adding numbers")
     file_number = int(file_number)
     file_number = file_number + 1
     file_number = str(file_number)
     print(file_number)
-    
+
     print("writing number")
     if os.path.isdir(f'{outputPath}\\{chat_id}'):
-        with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt','w') as f:
+        with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt', 'w') as f:
             f.write(file_number)
     else:
         os.mkdir(f'{outputPath}\\{chat_id}')
-        with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt','w') as f:
+        with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt', 'w') as f:
             f.write(file_number)
-    
+
     return imagePath
+
+
+def isGenerating(chat_id):
+    if os.path.exists(f"{outputPath}\\{chat_id}"):
+        with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'r') as f:
+            status = f.read()
+            return status
+    else:
+        return 0
+
+
+def isPrompting(chat_id):
+    if os.path.exists(f"{outputPath}\\{chat_id}"):
+        with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'r') as f:
+            status = f.read()
+            return status
+    else:
+        return 0
+
 
 main()
