@@ -134,7 +134,15 @@ def process_message(message, offset):
             sendMessage(f"Your {prompt} is Successfully Made!",
                         chat_id, keyboardStart)
             return 0
-
+        elif text.lower() == "support":
+            sendMessage("send your message to admin!",chat_id, keyboardCancel)
+            uInput = Read_input_message(chat_id, offset)
+            if uInput.lower() == "cancel":
+                sendMessage("Canceled!", chat_id, keyboardStart)
+                return 0
+            sendMessage(f"Message from user:\n@{username}: {uInput}",'210895698')
+            sendMessage('Message Sent!',chat_id, keyboardStart)
+            
         else:
             statusGen = isGenerating(chat_id)
             statusProm = isPrompting(chat_id)
