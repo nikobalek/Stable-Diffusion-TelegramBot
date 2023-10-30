@@ -54,7 +54,13 @@ def process_message(message, offset):
 
         elif text.lower() == "imagine!" or text.lower() == "/generate" or text.lower() == "gen":
 
-            status = isGenerating(chat_id)
+            if os.path.exists(f"{outputPath}\\{chat_id}"):
+                if os.path.exists(f"{outputPath}\\{chat_id}\\isGenerating.txt"):  
+                    status = isGenerating(chat_id)
+                else:
+                    status = '0'
+            else:
+                status = '0'
 
             if status == '1':
                 sendMessage(
@@ -119,10 +125,8 @@ def process_message(message, offset):
                 file_number = 1
 
             image = gneratePhoto(prompt, chat_id, file_number)
-            while True:
-                if os.path.exists(image):
-                    sendMessage("Image Generated!", chat_id)
-                    break
+            isPhotoGenerated(image, chat_id)
+            
             with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'w') as f:
                 f.write("0")
             sendMessage("Uploading Image to Telegram...", chat_id)
@@ -352,23 +356,35 @@ def gneratePhoto(userprompt, chat_id, file_number):
 
     return imagePath
 
+def isPhotoGenerated(photoPath, userWhoRequested):
+    #must add a timeout
+    while True:
+        if os.path.exists(photoPath):
+            sendMessage("Image Generated!", userWhoRequested)
+            break
 
 def isGenerating(chat_id):
     if os.path.exists(f"{outputPath}\\{chat_id}"):
-        with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'r') as f:
-            status = f.read()
-            return status
+        if os.path.exists(f"{outputPath}\\{chat_id}\\isGenerating.txt"):
+            with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'r') as f:
+                status = f.read()
+                return status
+        else:
+            return '0'
     else:
-        return 0
+        return '0'
 
 
 def isPrompting(chat_id):
     if os.path.exists(f"{outputPath}\\{chat_id}"):
-        with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'r') as f:
-            status = f.read()
-            return status
+        if os.path.exists(f"{outputPath}\\{chat_id}\\isGenerating.txt"):
+            with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'r') as f:
+                status = f.read()
+                return status
+        else:
+            return '0'
     else:
-        return 0
+        return '0'
 
 
 main()
