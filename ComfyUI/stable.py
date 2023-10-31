@@ -17,7 +17,7 @@ tUrl = "https://api.telegram.org/bot" + tApi
 outputPath = "C:\\Program Files (x86)\\ComfyUI_windows_portable\\ComfyUI\\output"
 
 keyboardDefault = [['']]
-keyboardStart = [['Imagine!'], ['History']]
+keyboardStart = [['Imagine!'], ['Archive']]
 keyboardCancel = [['Cancel']]
 keyboardModes = [['Easy Mode', 'Advanced Mode'], ['Costume']]
 
@@ -138,10 +138,10 @@ def process_message(message, offset):
             if uInput.lower() == "cancel":
                 sendMessage("Canceled!", chat_id, keyboardStart)
                 return 0
-            sendMessage(f"Message from user:\n@{username}: {uInput}",'210895698')
+            sendMessage(f"Message from @{username}:\n{uInput}",'210895698')
             sendMessage('Message Sent!',chat_id, keyboardStart)
             
-        elif text.lower() == "history":
+        elif text.lower() == "archive":
             print("test")
             sendArchiveKey(chat_id)
             
