@@ -24,25 +24,35 @@ keyboardModes = [['Easy Mode', 'Advanced Mode'], ['Costume']]
 
 def main():
     offset = 0
-    while True:
-        messages = Read_message(offset)
+    try:
+        while True:
 
-        if "result" in messages:
-            if messages["result"]:
-                for message in messages["result"]:
-                    threading.Thread(target=process_message,
-                                     args=(message, offset)).start()
-                offset = messages["result"][-1]["update_id"] + 1
-                time.sleep(0.2)
-        else:
-            continue
+            messages = getMessage(offset)
+
+            if "result" in messages:
+                if messages["result"]:
+                    for message in messages["result"]:
+                        threading.Thread(target=process_message,
+                                         args=(message, offset)).start()
+                    offset = messages["result"][-1]["update_id"] + 1
+                    time.sleep(0.2)
+            pass
+    except Exception as e:
+        main()
+        print(f"something wnent wrong{e}")
+
 
 
 def process_message(message, offset):
     try:
-        text = message["message"]["text"]
         chat_id = message["message"]["chat"]["id"]
         username = message["message"]["from"]["username"]
+        if 'text' in message['message']:
+            text = message['message']['text']
+        else:
+            sendMessage("What The Hell Is This?!\nSEND ME TEXT!",chat_id)
+            return 0
+
 
         print(username+": "+text)
 
@@ -147,7 +157,7 @@ def process_message(message, offset):
         print("An error occurred")
 
 
-def Read_message(offset):
+def getMessage(offset):
     parameters = {
         "offset": offset,
         "limit": 1
@@ -171,7 +181,7 @@ def Read_input_message(chat_id, offset):
                 for message in messages["result"]:
                     if chat_id == message["message"]["chat"]["id"]:
                         input = message["message"]["text"]
-                        Read_message(offset)
+                        getMessage(offset)
                         return input
         else:
             continue
