@@ -110,22 +110,10 @@ def process_message(message, offset):
             print(prompt)
 
             sendMessage("Generating Image...", chat_id, keyboardDefault)
-            if os.path.isdir(f"{outputPath}\\{chat_id}"):
-                print("dir exists")
-                if os.path.isfile(f'{outputPath}\\{chat_id}\\{chat_id}.txt'):
-                    print("file exists")
-                    with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt', 'r') as f:
-                        file_number = f.read()
-                        print(file_number)
-                else:
-                    print("file doesnt exist")
-                    file_number = 1
-            else:
-                print("dir doesnt exist")
-                file_number = 1
-
+            
+            file_number = getPhotoNumber(chat_id)
             image = gneratePhoto(prompt, chat_id, file_number)
-            isPhotoGenerated(image, chat_id)
+            waitForPhotoToGenerate(image, chat_id)
             
             with open(f"{outputPath}\\{chat_id}\\isGenerating.txt", 'w') as f:
                 f.write("0")
@@ -364,12 +352,27 @@ def gneratePhoto(userprompt, chat_id, file_number):
 
     return imagePath
 
-def isPhotoGenerated(photoPath, userWhoRequested):
+
+def getPhotoNumber(chat_id):
+    if os.path.isdir(f"{outputPath}\\{chat_id}"):
+                if os.path.isfile(f'{outputPath}\\{chat_id}\\{chat_id}.txt'):
+                    with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt', 'r') as f:
+                        photoNumber = f.read()
+                        return photoNumber
+                        print(number)
+                else:
+                    return '1'
+    else:
+        return '1'
+
+
+def waitForPhotoToGenerate(photoPath, userWhoRequested):
     #must add a timeout
     while True:
         if os.path.exists(photoPath):
             sendMessage("Image Generated!", userWhoRequested)
             break
+
 
 def isGenerating(chat_id):
     if os.path.exists(f"{outputPath}\\{chat_id}"):
@@ -385,8 +388,20 @@ def isGenerating(chat_id):
 
 def isPrompting(chat_id):
     if os.path.exists(f"{outputPath}\\{chat_id}"):
-        if os.path.exists(f"{outputPath}\\{chat_id}\\isGenerating.txt"):
+        if os.path.exists(f"{outputPath}\\{chat_id}\\isPrompting.txt"):
             with open(f"{outputPath}\\{chat_id}\\isPrompting.txt", 'r') as f:
+                status = f.read()
+                return status
+        else:
+            return '0'
+    else:
+        return '0'
+
+
+def isSendingMessage(chat_id):
+    if os.path.exists(f"{outputPath}\\{chat_id}"):
+        if os.path.exists(f"{outputPath}\\{chat_id}\\isSendingMessage.txt"):
+            with open(f"{outputPath}\\{chat_id}\\isSendingMessage.txt", 'r') as f:
                 status = f.read()
                 return status
         else:
