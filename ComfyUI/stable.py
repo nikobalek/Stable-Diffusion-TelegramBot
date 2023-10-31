@@ -17,7 +17,7 @@ tUrl = "https://api.telegram.org/bot" + tApi
 outputPath = "C:\\Program Files (x86)\\ComfyUI_windows_portable\\ComfyUI\\output"
 
 keyboardDefault = [['']]
-keyboardStart = [['Imagine!']]
+keyboardStart = [['Imagine!'], ['History']]
 keyboardCancel = [['Cancel']]
 keyboardModes = [['Easy Mode', 'Advanced Mode'], ['Costume']]
 
@@ -141,6 +141,10 @@ def process_message(message, offset):
             sendMessage(f"Message from user:\n@{username}: {uInput}",'210895698')
             sendMessage('Message Sent!',chat_id, keyboardStart)
             
+        elif text.lower() == "history":
+            print("test")
+            sendArchiveKey(chat_id)
+            
         else:
             statusGen = isGenerating(chat_id)
             statusProm = isPrompting(chat_id)
@@ -201,6 +205,29 @@ def sendMessage(text, id, keyboard=keyboardDefault):
     response = requests.get(tUrl + "/sendMessage",
                             data=json.dumps(parameters), headers=headers)
 
+def sendArchiveKey(chatId, text = ""):
+    print(f"{chatId}")
+    number = getPhotoNumber(chatId)
+    a = number
+    a = int(a)
+    a = a - 1
+    b = a - 1
+    c = b - 1
+    d = c - 1
+    
+    print(a)
+    print(d)
+    
+    keyboardHistory = [['Imagine!']]
+    
+    while a > 1:
+        keyboardHistory = keyboardHistory + [[f'{a}', f'{b}', f'{c}']] 
+        a = a - 3
+        b = a - 1
+        c = '' if b - 1 == 0 else b - 1
+    sendMessage("histori",chatId, keyboardHistory)
+        
+            
 
 def sendPhoto(image_path, chat_id):
     image = Image.open(f'{image_path}')
@@ -369,7 +396,6 @@ def getPhotoNumber(chat_id):
                     with open(f'{outputPath}\\{chat_id}\\{chat_id}.txt', 'r') as f:
                         photoNumber = f.read()
                         return photoNumber
-                        print(number)
                 else:
                     return '1'
     else:
